@@ -1,4 +1,4 @@
-const Order = require('./order.model');
+const Order = require("./order.model");
 
 // =========================================
 // CREATE ORDER
@@ -19,14 +19,14 @@ exports.createOrder = async (req, res) => {
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({
         success: false,
-        error: 'No order items provided',
+        error: "No order items provided",
       });
     }
 
     if (!fullName || !phone || !shippingAddress) {
       return res.status(400).json({
         success: false,
-        error: 'Full name, phone and shipping address are required',
+        error: "Full name, phone and shipping address are required",
       });
     }
 
@@ -40,24 +40,23 @@ exports.createOrder = async (req, res) => {
       total: Number(total) || 0,
 
       fullName,
-      email: email || req.user?.email || '',
+      email: email || req.user?.email || "",
       phone,
 
       shippingAddress,
 
-      paymentMethod: 'cash',
-      paymentStatus: 'pending',
-      orderStatus: 'placed',
+      paymentMethod: "cash",
+      paymentStatus: "pending",
+      orderStatus: "placed",
     });
 
     res.status(201).json({
       success: true,
-      message: 'Order placed successfully',
+      message: "Order placed successfully",
       data: order,
     });
-
   } catch (err) {
-    console.error('createOrder error:', err);
+    console.error("createOrder error:", err);
 
     res.status(500).json({
       success: false,
@@ -71,7 +70,6 @@ exports.createOrder = async (req, res) => {
 // =========================================
 exports.getMyOrders = async (req, res) => {
   try {
-
     const orders = await Order.find({
       user: req.user._id,
     }).sort({ createdAt: -1 });
@@ -81,9 +79,8 @@ exports.getMyOrders = async (req, res) => {
       count: orders.length,
       data: orders,
     });
-
   } catch (err) {
-    console.error('getMyOrders error:', err);
+    console.error("getMyOrders error:", err);
 
     res.status(500).json({
       success: false,
@@ -97,51 +94,40 @@ exports.getMyOrders = async (req, res) => {
 // =========================================
 exports.getAllOrdersAdmin = async (req, res) => {
   try {
-
-    // ─────────────────────────────────────
+    // ─────────────────────────────
     // PAGINATION
-    // ─────────────────────────────────────
+    // ─────────────────────────────
     const page = Math.max(1, parseInt(req.query.page) || 1);
-
-    const limit = Math.min(
-      100,
-      Math.max(1, parseInt(req.query.limit) || 10)
-    );
-
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 10));
     const skip = (page - 1) * limit;
 
-    // ─────────────────────────────────────
-    // FILTER
-    // ─────────────────────────────────────
+    // ─────────────────────────────
+    // BASE FILTER
+    // ─────────────────────────────
     const filter = {};
 
-    // status filter
     if (req.query.orderStatus) {
       filter.orderStatus = req.query.orderStatus;
     }
 
-    // payment filter
     if (req.query.paymentStatus) {
       filter.paymentStatus = req.query.paymentStatus;
     }
 
-    // ─────────────────────────────────────
+    // ─────────────────────────────
     // DATE FILTER
-    // ─────────────────────────────────────
-    const startDate = req.query.startDate;
-    const endDate = req.query.endDate;
-    const quickFilter = req.query.quickFilter;
+    // ─────────────────────────────
+    const { startDate, endDate, quickFilter } = req.query;
 
     if (startDate || endDate || quickFilter) {
       filter.createdAt = {};
 
       let start;
       let end;
-
-      // quick filters
       const now = new Date();
 
-      if (quickFilter === 'today') {
+      // QUICK FILTERS
+      if (quickFilter === "today") {
         start = new Date();
         start.setHours(0, 0, 0, 0);
 
@@ -149,31 +135,29 @@ exports.getAllOrdersAdmin = async (req, res) => {
         end.setHours(23, 59, 59, 999);
       }
 
-      if (quickFilter === 'yesterday') {
+      if (quickFilter === "yesterday") {
         start = new Date();
-        start.setDate(start.getDate() - 1);
+        start.setDate(now.getDate() - 1);
         start.setHours(0, 0, 0, 0);
 
         end = new Date();
-        end.setDate(end.getDate() - 1);
+        end.setDate(now.getDate() - 1);
         end.setHours(23, 59, 59, 999);
       }
 
-      if (quickFilter === 'last7days') {
+      if (quickFilter === "last7days") {
         start = new Date();
-        start.setDate(start.getDate() - 7);
-
+        start.setDate(now.getDate() - 7);
         end = new Date();
       }
 
-      if (quickFilter === 'last30days') {
+      if (quickFilter === "last30days") {
         start = new Date();
-        start.setDate(start.getDate() - 30);
-
+        start.setDate(now.getDate() - 30);
         end = new Date();
       }
 
-      // manual date range
+      // MANUAL DATE RANGE (override quickFilter if used)
       if (startDate) {
         start = new Date(startDate);
       }
@@ -183,131 +167,104 @@ exports.getAllOrdersAdmin = async (req, res) => {
         end.setHours(23, 59, 59, 999);
       }
 
-      if (start) {
-        filter.createdAt.$gte = start;
-      }
-
-      if (end) {
-        filter.createdAt.$lte = end;
-      }
+      if (start) filter.createdAt.$gte = start;
+      if (end) filter.createdAt.$lte = end;
     }
 
-    // ─────────────────────────────────────
+    // ─────────────────────────────
     // SEARCH
-    // ─────────────────────────────────────
+    // ─────────────────────────────
     const search = req.query.search?.trim();
 
     if (search) {
       filter.$or = [
-        {
-          orderId: {
-            $regex: search,
-            $options: 'i',
-          },
-        },
-
-        {
-          fullName: {
-            $regex: search,
-            $options: 'i',
-          },
-        },
-
-        {
-          email: {
-            $regex: search,
-            $options: 'i',
-          },
-        },
-
-        {
-          phone: {
-            $regex: search,
-            $options: 'i',
-          },
-        },
+        { orderId: { $regex: search, $options: "i" } },
+        { fullName: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+        { phone: { $regex: search, $options: "i" } },
       ];
     }
 
-    // ─────────────────────────────────────
-    // TOTALS
-    // ─────────────────────────────────────
-
-    // ALL ORDERS TOTAL
-    const allOrdersTotal = await Order.aggregate([
-      {
-        $group: {
-          _id: null,
-          total: {
-            $sum: '$total',
-          },
-        },
-      },
-    ]);
-
-    // FILTERED TOTAL
-    const filteredOrdersTotal = await Order.aggregate([
-      {
-        $match: filter,
-      },
-
-      {
-        $group: {
-          _id: null,
-          total: {
-            $sum: '$total',
-          },
-        },
-      },
-    ]);
-
-    // ─────────────────────────────────────
-    // GET ORDERS
-    // ─────────────────────────────────────
+    // ─────────────────────────────
+    // GET ORDERS (PAGINATED)
+    // ─────────────────────────────
     const orders = await Order.find(filter)
-      .populate('user', 'name email')
+      .populate("user", "name email")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
-    // ─────────────────────────────────────
-    // COUNT
-    // ─────────────────────────────────────
+    // ─────────────────────────────
+    // TOTAL COUNT
+    // ─────────────────────────────
     const total = await Order.countDocuments(filter);
 
-    // ─────────────────────────────────────
+    // ─────────────────────────────
+    // REVENUE SUMMARY (FAST + CLEAN)
+    // ─────────────────────────────
+    const summaryAgg = await Order.aggregate([
+      { $match: filter },
+      {
+        $group: {
+          _id: null,
+          totalOrders: { $sum: 1 },
+          totalRevenue: { $sum: "$total" },
+          totalSubtotal: { $sum: "$subtotal" },
+          totalDeliveryCharge: { $sum: "$deliveryCharge" },
+        },
+      },
+    ]);
+
+    const summary = summaryAgg[0] || {
+      totalOrders: 0,
+      totalRevenue: 0,
+      totalSubtotal: 0,
+      totalDeliveryCharge: 0,
+    };
+
+    // ─────────────────────────────
+    // GLOBAL TOTALS (ALL DATA, NO FILTER)
+    // ─────────────────────────────
+    const globalTotalsAgg = await Order.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$total" },
+        },
+      },
+    ]);
+
+    const globalTotals = {
+      allOrdersTotal: globalTotalsAgg[0]?.totalRevenue || 0,
+    };
+
+    // ─────────────────────────────
     // RESPONSE
-    // ─────────────────────────────────────
+    // ─────────────────────────────
     res.status(200).json({
       success: true,
 
       totals: {
-        allOrdersTotal:
-          allOrdersTotal[0]?.total || 0,
-
-        filteredOrdersTotal:
-          filteredOrdersTotal[0]?.total || 0,
+        ...globalTotals,
+        filteredOrdersTotal: summary.totalRevenue,
       },
+
+      summary,
 
       pagination: {
         total,
         page,
         limit,
-
         totalPages: Math.ceil(total / limit),
-
-        hasNextPage:
-          page < Math.ceil(total / limit),
-
-        hasPrevPage:
-          page > 1,
+        hasNextPage: page < Math.ceil(total / limit),
+        hasPrevPage: page > 1,
       },
 
       data: orders,
     });
 
   } catch (err) {
-    console.error('getAllOrdersAdmin error:', err);
+    console.error("getAllOrdersAdmin error:", err);
 
     res.status(500).json({
       success: false,
@@ -321,7 +278,6 @@ exports.getAllOrdersAdmin = async (req, res) => {
 // =========================================
 exports.updateOrderStatus = async (req, res) => {
   try {
-
     const {
       orderStatus,
       paymentStatus,
@@ -336,7 +292,7 @@ exports.updateOrderStatus = async (req, res) => {
     if (!order) {
       return res.status(404).json({
         success: false,
-        error: 'Order not found',
+        error: "Order not found",
       });
     }
 
@@ -368,12 +324,11 @@ exports.updateOrderStatus = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Order updated successfully',
+      message: "Order updated successfully",
       data: order,
     });
-
   } catch (err) {
-    console.error('updateOrderStatus error:', err);
+    console.error("updateOrderStatus error:", err);
 
     res.status(500).json({
       success: false,
@@ -387,13 +342,12 @@ exports.updateOrderStatus = async (req, res) => {
 // =========================================
 exports.deleteOrder = async (req, res) => {
   try {
-
     const order = await Order.findById(req.params.id);
 
     if (!order) {
       return res.status(404).json({
         success: false,
-        error: 'Order not found',
+        error: "Order not found",
       });
     }
 
@@ -401,11 +355,10 @@ exports.deleteOrder = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Order deleted successfully',
+      message: "Order deleted successfully",
     });
-
   } catch (err) {
-    console.error('deleteOrder error:', err);
+    console.error("deleteOrder error:", err);
 
     res.status(500).json({
       success: false,

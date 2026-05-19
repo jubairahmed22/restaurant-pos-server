@@ -13,7 +13,7 @@ exports.getFoods = async (req, res, next) => {
       maxPrice,
       isFeatured,
       page = 1,
-      limit = 9,
+      limit = 30,
     } = req.query;
 
     let query = {};
