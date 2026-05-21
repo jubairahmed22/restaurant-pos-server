@@ -14,7 +14,7 @@ exports.getDashboardStats = async (req, res, next) => {
 
     const now = new Date();
 
-    const startOfToday = new Date();
+    const startOfToday = new Date();  fadsfs
     startOfToday.setHours(0, 0, 0, 0);
 
     const startOfMonth = new Date(
