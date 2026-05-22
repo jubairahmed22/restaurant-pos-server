@@ -12,7 +12,7 @@ exports.getDashboardStats = async (req, res, next) => {
     // DATE HELPERS
     // =====================================
 
-    const now = new Date();asdfas
+    const now = new Date();
 
     const startOfToday = new Date(); 
     startOfToday.setHours(0, 0, 0, 0);
