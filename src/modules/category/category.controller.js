@@ -8,7 +8,7 @@ exports.getCategories = async (req, res, next) => {
     res.status(200).json({ success: true, count: categories.length, data: categories });
   } catch (error) {
     next(error);
-  }
+  }a
 };
 sdfsadfa
 // Add this new controller
