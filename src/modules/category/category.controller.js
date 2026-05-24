@@ -10,7 +10,7 @@ exports.getCategories = async (req, res, next) => {
     next(error);
   }
 };
-
+asdfasd asdfas
 // Add this new controller
 exports.reorderCategories = async (req, res, next) => {
   try {
