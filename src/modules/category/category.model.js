@@ -18,6 +18,10 @@ const categorySchema = new mongoose.Schema(
       type: String,
       default: 'https://placehold.co/600x400?text=Category',
     },
+    position: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

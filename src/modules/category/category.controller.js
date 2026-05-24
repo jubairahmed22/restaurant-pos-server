@@ -1,10 +1,36 @@
 const Category = require('./category.model');
 const cloudinary = require('../../config/cloudinary');
 
+// Change getCategories to sort by position
 exports.getCategories = async (req, res, next) => {
   try {
-    const categories = await Category.find().sort({ createdAt: -1 });
+    const categories = await Category.find().sort({ position: 1, createdAt: -1 });
     res.status(200).json({ success: true, count: categories.length, data: categories });
+  } catch (error) {
+    next(error);
+  }
+};
+sdfsadfa
+// Add this new controller
+exports.reorderCategories = async (req, res, next) => {
+  try {
+    // orderedIds = ['id1', 'id2', 'id3', ...] in new order
+    const { orderedIds } = req.body;
+
+    if (!Array.isArray(orderedIds)) {
+      return res.status(400).json({ success: false, error: 'orderedIds must be an array' });
+    }
+
+    const bulkOps = orderedIds.map((id, index) => ({
+      updateOne: {
+        filter: { _id: id },
+        update: { $set: { position: index } },
+      },
+    }));
+
+    await Category.bulkWrite(bulkOps);
+
+    res.status(200).json({ success: true, message: 'Categories reordered' });
   } catch (error) {
     next(error);
   }

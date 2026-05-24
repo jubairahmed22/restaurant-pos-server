@@ -3,12 +3,17 @@ const {
   getCategories, 
   createCategory, 
   deleteCategory, 
-  updateCategory 
+  updateCategory,
+  reorderCategories   // ← add this
+ 
 } = require('./category.controller');
 const { protect, authorize } = require('../../middleware/auth');
 const upload = require('../../middleware/upload');
 
 const router = express.Router();
+
+router.route('/reorder')
+  .put(protect, authorize('admin'), reorderCategories);
 
 // Root routes
 router.route('/')
