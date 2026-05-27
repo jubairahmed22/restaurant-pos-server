@@ -19,19 +19,20 @@ exports.createOrder = async (req, res) => {
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({
         success: false,
-        error: "No order items provided",
+        error: 'No order items provided',
       });
     }
 
     if (!fullName || !phone || !shippingAddress) {
       return res.status(400).json({
         success: false,
-        error: "Full name, phone and shipping address are required",
+        error: 'Full name, phone and shipping address are required',
       });
     }
 
     const order = await Order.create({
-      user: req.user?._id,
+      // user is optional (walk-in / guest support)
+      user: req.user?._id ?? null,
 
       items,
 
@@ -40,23 +41,23 @@ exports.createOrder = async (req, res) => {
       total: Number(total) || 0,
 
       fullName,
-      email: email || req.user?.email || "",
+      email: email || req.user?.email || '',
       phone,
 
       shippingAddress,
 
-      paymentMethod: "cash",
-      paymentStatus: "pending",
-      orderStatus: "placed",
+      paymentMethod: 'cash',
+      paymentStatus: 'pending',
+      orderStatus: 'placed',
     });
 
     res.status(201).json({
       success: true,
-      message: "Order placed successfully",
+      message: 'Order placed successfully',
       data: order,
     });
   } catch (err) {
-    console.error("createOrder error:", err);
+    console.error('createOrder error:', err);
 
     res.status(500).json({
       success: false,

@@ -14,7 +14,7 @@ const tagRoutes = require('./modules/tags/tag.routes');
 const foodRoutes = require('./modules/foods/food.routes');
 const orderRoutes = require('./modules/orders/order.routes');
 const analyticsRoutes = require('./modules/analytics/analytics.routes');
-
+const reservationRoutes = require('./modules/reservation/reservation.routes');
 const app = express();
 
 // Security and Network Layer Utilities Middlewares
@@ -36,6 +36,7 @@ app.use('/api/v1/tags', tagRoutes);
 app.use('/api/v1/foods', foodRoutes);
 app.use('/api/v1/orders', orderRoutes);
 app.use('/api/v1/analytics', analyticsRoutes);
+app.use('/api/v1/reservations', reservationRoutes);
 
 app.get('/', (req, res) => {
   res.status(200).json({ success: true, message: "Production Ready Restaurant Management System Backend Layer Running Active." });
