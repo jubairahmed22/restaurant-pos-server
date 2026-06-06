@@ -5,7 +5,7 @@ const connectDB = require('./config/db');
 const { initSocket } = require('./sockets/socketServer');
 
 const PORT = process.env.PORT || 51000;
-sadfsda
+
 // Connect to Database
 connectDB();
 
