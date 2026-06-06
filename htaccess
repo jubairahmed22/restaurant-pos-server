@@ -1,0 +1,17 @@
+# ── cPanel Node.js / Phusion Passenger ───────────────────
+# This file tells Apache to hand ALL requests to Passenger
+# (which runs your Node.js app) instead of serving static files.
+
+PassengerEnabled on
+PassengerNodejs /home/cubesrm/nodevenv/backend-rin/20/bin/node
+
+# WebSocket support — required for Socket.io
+RewriteEngine On
+RewriteCond %{HTTP:Upgrade} websocket [NC]
+RewriteCond %{HTTP:Connection} upgrade [NC]
+RewriteRule .* - [L]
+
+# Proxy everything else to Node
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ - [L]
