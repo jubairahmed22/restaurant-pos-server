@@ -6,8 +6,9 @@ const initSocket = (server) => {
   // Build allowed origins from env — same list as app.js CORS
   const allowedOrigins = [
     'http://localhost:3000',
+    'https://rin-frontend.vercel.app/',
     'http://127.0.0.1:3000',
-    'https://ortazz.com.au',
+    'http://localhost:51000',
     'http://ortazz.com.au',
     ...(process.env.CLIENT_ORIGIN || '').split(',').map(s => s.trim()).filter(Boolean),
   ];

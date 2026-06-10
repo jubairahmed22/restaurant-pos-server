@@ -121,8 +121,36 @@ const OrderSchema = new mongoose.Schema(
     // =========================================
     paymentMethod: {
       type: String,
-      enum: ['cash'],
+      enum: ['cash', 'square'],
       default: 'cash',
+    },
+
+    squarePaymentId: {
+      type: String,
+      default: null,
+    },
+
+    // =========================================
+    // PICKUP SCHEDULING
+    // =========================================
+    pickupDate: {
+      type: String, // 'YYYY-MM-DD'
+      default: null,
+    },
+
+    pickupTime: {
+      type: String, // '16:45' 24-h or 'asap'
+      default: null,
+    },
+
+    pickupDisplayDate: {
+      type: String, // 'Tue 09'
+      default: null,
+    },
+
+    pickupDisplayTime: {
+      type: String, // '04:45 pm' or 'ASAP'
+      default: null,
     },
 
     paymentStatus: {
