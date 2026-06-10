@@ -21,7 +21,7 @@ const bootstrapRoutes = require('./modules/bootstrap/bootstrap.routes');
 const floorPlanRoutes = require('./modules/floor-plans/floor-plan.routes');
 const paymentRoutes   = require('./modules/payments/payment.routes');
 const app = express();
-asdfsda
+
 
 
 // ── Allowed CORS origins ──────────────────────────────────
