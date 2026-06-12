@@ -20,9 +20,10 @@ const sessionRoutes   = require('./modules/sessions/session.routes');
 const bootstrapRoutes = require('./modules/bootstrap/bootstrap.routes');
 const floorPlanRoutes = require('./modules/floor-plans/floor-plan.routes');
 const paymentRoutes   = require('./modules/payments/payment.routes');
+const shopRoutes      = require('./modules/shop/shop.routes');
 const app = express();
 
-
+sadfasd
 
 // ── Allowed CORS origins ──────────────────────────────────
 // Set CLIENT_ORIGIN in cPanel env vars to your frontend URL.
@@ -75,6 +76,7 @@ app.use('/api/v1/sessions', sessionRoutes);
 app.use('/api/v1/bootstrap', bootstrapRoutes);
 app.use('/api/v1/floor-plans', floorPlanRoutes);
 app.use('/api/v1/payments',   paymentRoutes);
+app.use('/api/v1/shop',       shopRoutes);
 
 app.get('/', (req, res) => {
   res.status(200).json({ success: true, message: "Production Ready Restaurant Management System Backend Layer Running Active." });
