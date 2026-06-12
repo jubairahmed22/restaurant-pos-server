@@ -23,7 +23,7 @@ const paymentRoutes   = require('./modules/payments/payment.routes');
 const shopRoutes      = require('./modules/shop/shop.routes');
 const app = express();
 
-sadfsad
+
 
 // ── Allowed CORS origins ──────────────────────────────────
 // Set CLIENT_ORIGIN in cPanel env vars to your frontend URL.
