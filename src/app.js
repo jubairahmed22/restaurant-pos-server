@@ -24,7 +24,7 @@ const shopRoutes      = require('./modules/shop/shop.routes');
 const app = express();
 
 
-asdfsad
+
 // ── Allowed CORS origins ──────────────────────────────────
 // Set CLIENT_ORIGIN in cPanel env vars to your frontend URL.
 // Multiple origins: comma-separated, e.g. "https://app.ortazz.com.au,http://localhost:51000"
