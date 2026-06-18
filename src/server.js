@@ -13,7 +13,7 @@ connectDB();
 const server = http.createServer(app);
 
 // Initialise real-time engine
-initSocket(server);
+initSocket(server); sadfsadf
 
 // Boot server instance
 server.listen(PORT, () => {
