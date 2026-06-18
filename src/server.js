@@ -7,7 +7,7 @@ const { initSocket } = require('./sockets/socketServer');
 const PORT = process.env.PORT || 51000;
 
 // Connect to Database 
-connectDB(); 
+connectDB(); asdfasdf
 
 // Create HTTP Server
 const server = http.createServer(app);
