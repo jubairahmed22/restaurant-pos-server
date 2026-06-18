@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 51000;
 connectDB(); 
 
 // Create HTTP Server
-const server = http.createServer(app);
+const server = http.createServer(app); asdfsad
 
 // Initialise real-time engine
 initSocket(server);
