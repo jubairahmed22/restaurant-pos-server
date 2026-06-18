@@ -21,6 +21,8 @@ const bootstrapRoutes = require('./modules/bootstrap/bootstrap.routes');
 const floorPlanRoutes = require('./modules/floor-plans/floor-plan.routes');
 const paymentRoutes   = require('./modules/payments/payment.routes');
 const shopRoutes      = require('./modules/shop/shop.routes');
+const reviewRoutes    = require('./modules/review/review.routes');
+const blogRoutes      = require('./modules/blog/blog.routes');
 const app = express();
 
 
@@ -56,7 +58,7 @@ app.use(cors({
     callback(new Error(`CORS: origin ${origin} not allowed`));
   },
   credentials: true,
-}));
+})); adsfsdf
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -77,6 +79,8 @@ app.use('/api/v1/bootstrap', bootstrapRoutes);
 app.use('/api/v1/floor-plans', floorPlanRoutes);
 app.use('/api/v1/payments',   paymentRoutes);
 app.use('/api/v1/shop',       shopRoutes);
+app.use('/api/v1/reviews',    reviewRoutes);
+app.use('/api/v1/blogs',      blogRoutes);
 
 app.get('/', (req, res) => {
   res.status(200).json({ success: true, message: "Production Ready Restaurant Management System Backend Layer Running Active." });

@@ -22,6 +22,18 @@ const categorySchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    seoTitle: {
+      type: String,
+      default: '',
+    },
+    seoDescription: {
+      type: String,
+      default: '',
+    },
+    seoKeywords: {
+      type: String,
+      default: '',
+    },
   },
   {
     timestamps: true,
@@ -36,17 +48,11 @@ const categorySchema = new mongoose.Schema(
  * This ensures "this" refers to the current category document.
  */
 categorySchema.pre('save', function (next) {
-  // Only slugify if the title is new or being modified
-  if (!this.isModified('title')) {
-    return next();
+  // If slug was explicitly set (non-empty), keep it as-is
+  const hasCustomSlug = this.isModified('slug') && !!this.slug;
+  if (!hasCustomSlug && (this.isModified('title') || !this.slug)) {
+    this.slug = slugify(this.title || '', { lower: true, strict: true });
   }
-
-  // Create the slug from the title (e.g., "Fast Food" -> "fast-food")
-  this.slug = slugify(this.title, {
-    lower: true,
-    strict: true,
-  });
-
   next();
 });
 

@@ -162,7 +162,8 @@ exports.updateFood = async (req, res, next) => {
       updateData.tags = JSON.parse(updateData.tags || '[]');
     }
 
-    if (updateData.title) {
+    // Use explicit slug if provided; otherwise regenerate from title
+    if (!updateData.slug && updateData.title) {
       updateData.slug = updateData.title
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')

@@ -12,7 +12,12 @@ exports.getAll = async (req, res) => {
     const { page = 1, limit = 12, search, category, minPrice, maxPrice, featured, sort = 'newest' } = req.query;
     const filter = { isActive: true };
 
-    if (search)   filter.title    = { $regex: search, $options: 'i' };
+    if (search)   filter.$or = [
+      { title:            { $regex: search, $options: 'i' } },
+      { sku:              { $regex: search, $options: 'i' } },
+      { shortDescription: { $regex: search, $options: 'i' } },
+      { description:      { $regex: search, $options: 'i' } },
+    ];
     if (category) filter.category = category;
     if (featured === 'true') filter.isFeatured = true;
     if (minPrice || maxPrice) {
@@ -85,6 +90,18 @@ exports.toggleFeatured = async (req, res) => {
     const product = await ShopProduct.findById(req.params.id);
     if (!product) return res.status(404).json({ success: false, error: 'Product not found' });
     product.isFeatured = !product.isFeatured;
+    await product.save();
+    res.json({ success: true, data: product });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+exports.toggleAvailable = async (req, res) => {
+  try {
+    const product = await ShopProduct.findById(req.params.id);
+    if (!product) return res.status(404).json({ success: false, error: 'Product not found' });
+    product.isAvailable = !product.isAvailable;
     await product.save();
     res.json({ success: true, data: product });
   } catch (err) {

@@ -1,4 +1,5 @@
 const Order = require("./order.model");
+const { getIO } = require('../../sockets/socketServer');
 
 // =========================================
 // CREATE ORDER
@@ -50,6 +51,16 @@ exports.createOrder = async (req, res) => {
       paymentStatus: 'pending',
       orderStatus: 'placed',
     });
+
+    try {
+      getIO().to('admin-room').emit('notification:newOrder', {
+        _id: order._id,
+        orderId: order.orderId,
+        fullName: order.fullName,
+        total: order.total,
+        createdAt: order.createdAt,
+      });
+    } catch (_) { /* socket not yet initialised */ }
 
     res.status(201).json({
       success: true,

@@ -161,6 +161,17 @@ const OrderSchema = new mongoose.Schema(
     },
 
     // =========================================
+    // ATTRIBUTION — captured from UTM params / referrer
+    // =========================================
+    attribution: {
+      source:      { type: String, default: 'direct' }, // utm_source or 'direct'
+      medium:      { type: String, default: '' },        // utm_medium
+      campaign:    { type: String, default: '' },        // utm_campaign
+      referrer:    { type: String, default: '' },        // document.referrer hostname
+      landingPage: { type: String, default: '' },        // first page visited
+    },
+
+    // =========================================
     // ORDER STATUS
     // =========================================
     orderStatus: {

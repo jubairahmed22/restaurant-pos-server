@@ -1,5 +1,6 @@
 // server/modules/reservation/reservation.controller.js
 const Reservation = require('./reservation.model');
+const { getIO } = require('../../sockets/socketServer');
 
 // =========================================
 // CREATE RESERVATION
@@ -36,6 +37,17 @@ exports.createReservation = async (req, res) => {
       date, time, timeSlot,
       notes: notes || '',
     });
+
+    try {
+      getIO().to('admin-room').emit('notification:newReservation', {
+        _id: reservation._id,
+        fullName: reservation.fullName,
+        people: reservation.people,
+        date: reservation.date,
+        time: reservation.time,
+        createdAt: reservation.createdAt,
+      });
+    } catch (_) { /* socket not yet initialised */ }
 
     res.status(201).json({ success: true, message: 'Reservation created', data: reservation });
   } catch (err) {

@@ -23,6 +23,13 @@ const ShopOrderSchema = new mongoose.Schema({
   paymentStatus:   { type: String, enum: ['pending', 'paid', 'failed'], default: 'pending' },
   squarePaymentId: { type: String, default: '' },
   orderStatus:     { type: String, enum: ['placed', 'processing', 'shipped', 'delivered', 'cancelled'], default: 'placed' },
+  attribution: {
+    source:      { type: String, default: 'direct' },
+    medium:      { type: String, default: '' },
+    campaign:    { type: String, default: '' },
+    referrer:    { type: String, default: '' },
+    landingPage: { type: String, default: '' },
+  },
 }, { timestamps: true });
 
 ShopOrderSchema.pre('validate', function (next) {

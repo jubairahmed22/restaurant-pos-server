@@ -49,8 +49,10 @@ exports.createCategory = async (req, res, next) => {
       imageUrl = uploadResponse.secure_url;
     }
 
-    const { title } = req.body;
-    const category = await Category.create({ title, image: imageUrl });
+    const { title, slug, seoTitle, seoDescription, seoKeywords } = req.body;
+    const createData = { title, image: imageUrl, seoTitle, seoDescription, seoKeywords };
+    if (slug) createData.slug = slug; // explicit slug; otherwise pre-save auto-generates
+    const category = await Category.create(createData);
 
     res.status(201).json({ success: true, data: category });
   } catch (error) {
@@ -69,6 +71,14 @@ exports.updateCategory = async (req, res, next) => {
 
     // Update the title
     category.title = req.body.title || category.title;
+
+    // Update slug — explicit value takes priority; empty = pre-save auto-generates from title
+    if (req.body.slug) category.slug = req.body.slug;
+
+    // Update SEO meta fields
+    if (typeof req.body.seoTitle !== 'undefined') category.seoTitle = req.body.seoTitle;
+    if (typeof req.body.seoDescription !== 'undefined') category.seoDescription = req.body.seoDescription;
+    if (typeof req.body.seoKeywords !== 'undefined') category.seoKeywords = req.body.seoKeywords;
 
     // Handle Image if exists
     if (req.file) {

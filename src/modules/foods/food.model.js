@@ -13,11 +13,13 @@ const FoodSchema = new mongoose.Schema({
   isFeatured: { type: Boolean, default: false },
   seoTitle: String,
   seoDescription: String,
+  seoKeywords: String,
   createdAt: { type: Date, default: Date.now }
 });
 
 FoodSchema.pre('save', function(next) {
-  if (this.title) {
+  // Only auto-generate slug if one was not explicitly provided
+  if (!this.slug && this.title) {
     this.slug = this.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
   }
   next();

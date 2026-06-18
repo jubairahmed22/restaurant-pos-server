@@ -5,6 +5,16 @@ const SpecificationSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const AttributeOptionSchema = new mongoose.Schema(
+  { label: String, value: String, unit: { type: String, default: '' } },
+  { _id: false }
+);
+
+const AttributeSchema = new mongoose.Schema(
+  { name: String, options: [AttributeOptionSchema] },
+  { _id: false }
+);
+
 const ShopProductSchema = new mongoose.Schema({
   title:            { type: String, required: [true, 'Title required'], trim: true },
   slug:             { type: String, unique: true, lowercase: true },
@@ -21,10 +31,12 @@ const ShopProductSchema = new mongoose.Schema({
   discountEndDate:  { type: Date, default: null },
   isFeatured:       { type: Boolean, default: false },
   isActive:         { type: Boolean, default: true },
+  isAvailable:      { type: Boolean, default: true },
   brand:            { type: String, default: '' },
   weight:           { type: String, default: '' },
   dimensions:       { type: String, default: '' },
   specifications:   [SpecificationSchema],
+  attributes:       [AttributeSchema],
   tags:             [{ type: String }],
   seoTitle:         { type: String, default: '' },
   seoDescription:   { type: String, default: '' },

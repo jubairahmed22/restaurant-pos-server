@@ -1,4 +1,6 @@
-const ShopOrder = require('./shop-order.model');
+const ShopOrder   = require('./shop-order.model');
+const ShopProduct  = require('./shop-product.model');
+const ShopCategory = require('./shop-category.model');
 
 exports.placeOrder = async (req, res) => {
   try {
@@ -37,6 +39,81 @@ exports.getOrders = async (req, res) => {
     ]);
 
     res.json({ success: true, data, pagination: { total, page: Number(page), totalPages: Math.ceil(total / Number(limit)) } });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+exports.getStats = async (req, res) => {
+  try {
+    const now   = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const [
+      totalOrders,
+      pendingOrders,
+      processingOrders,
+      shippedOrders,
+      deliveredOrders,
+      cancelledOrders,
+      revenueAgg,
+      monthlyAgg,
+      todayAgg,
+      totalProducts,
+      availableProducts,
+      featuredProducts,
+      totalCategories,
+      recentOrders,
+      orderStatusStats,
+      topProducts,
+    ] = await Promise.all([
+      ShopOrder.countDocuments(),
+      ShopOrder.countDocuments({ orderStatus: 'placed' }),
+      ShopOrder.countDocuments({ orderStatus: 'processing' }),
+      ShopOrder.countDocuments({ orderStatus: 'shipped' }),
+      ShopOrder.countDocuments({ orderStatus: 'delivered' }),
+      ShopOrder.countDocuments({ orderStatus: 'cancelled' }),
+      ShopOrder.aggregate([{ $group: { _id: null, total: { $sum: '$total' } } }]),
+      ShopOrder.aggregate([{ $match: { createdAt: { $gte: monthStart } } }, { $group: { _id: null, total: { $sum: '$total' } } }]),
+      ShopOrder.aggregate([{ $match: { createdAt: { $gte: today } } }, { $group: { _id: null, total: { $sum: '$total' } } }]),
+      ShopProduct.countDocuments(),
+      ShopProduct.countDocuments({ isAvailable: true }),
+      ShopProduct.countDocuments({ isFeatured: true }),
+      ShopCategory.countDocuments(),
+      ShopOrder.find().sort({ createdAt: -1 }).limit(5).select('orderId fullName total orderStatus createdAt'),
+      ShopOrder.aggregate([{ $group: { _id: '$orderStatus', total: { $sum: 1 } } }]),
+      ShopOrder.aggregate([
+        { $unwind: '$items' },
+        { $group: { _id: '$items.title', totalSold: { $sum: '$items.quantity' }, revenue: { $sum: { $multiply: ['$items.price', '$items.quantity'] } } } },
+        { $sort: { totalSold: -1 } },
+        { $limit: 5 },
+      ]),
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        summary: {
+          totalOrders,
+          pendingOrders,
+          processingOrders,
+          shippedOrders,
+          deliveredOrders,
+          cancelledOrders,
+          totalRevenue:   revenueAgg[0]?.total  || 0,
+          monthlyRevenue: monthlyAgg[0]?.total   || 0,
+          todayRevenue:   todayAgg[0]?.total     || 0,
+          totalProducts,
+          availableProducts,
+          featuredProducts,
+          totalCategories,
+        },
+        recentOrders,
+        orderStatusStats,
+        topProducts,
+      },
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
